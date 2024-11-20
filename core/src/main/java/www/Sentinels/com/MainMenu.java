@@ -56,7 +56,7 @@ public class MainMenu implements Screen {
     }
     @Override
     public void show() {
-        // Code to execute when this screen is set
+
     }
 
     @Override
@@ -102,7 +102,7 @@ public class MainMenu implements Screen {
 
     @Override
     public void hide() {
-        MainTheme.stop();// test wdym by theme?, oo dapat organized imong file huhuhu, ikaw ra magkalibog libog ana kung dili ka organized, awa akoa
+        MainTheme.stop();
     }
 
     @Override

@@ -21,7 +21,12 @@ public class GameScreen implements Screen {
     private Viewport viewport;
 
     private SpriteBatch batch;
-    private Texture[] backgrounds;
+    private TextureAtlas textureAtlas;
+
+    private TextureRegion[] backgrounds;
+
+    private TextureRegion playerShipTextureRegion, playerShieldTextureRegion, enemyShipTextureRegion,
+        enemyShieldTextureRegion, playerLaserTextureRegion, enemyLaserTextureregion;
 
     private float[] backgroundOffsets = {0, 0, 0, 0};
     private float backgroundMaxScrollingSpeed;
@@ -29,24 +34,56 @@ public class GameScreen implements Screen {
     // World parameters
     private final int WORLD_WIDTH = 72;
     private final int WORLD_HEIGHT = 128;
+
+    //game Objects
+    private Ship playerShip;
+    private Ship enemyShip;
+
     public GameScreen(Main game) {
         this.game = game;
         camera = new OrthographicCamera();
         viewport = new StretchViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
 
-        // Initialize the backgrounds array
-        backgrounds = new Texture[4];
-        backgrounds[0] = new Texture("backg1.png");
-        backgrounds[1] = new Texture("backg2.png");
-        backgrounds[2] = new Texture("backg3.png");
-        backgrounds[3] = new Texture("backg4.png");
+        //set up the texture atlas
+        TextureAtlas mainAtlas = new TextureAtlas("images.atlas");
+        TextureAtlas enemyAtlas = new TextureAtlas("Enemy.atlas");
 
+        // Initialize the backgrounds array
+        backgrounds = new TextureRegion[4];
+
+        backgrounds[0] = mainAtlas.findRegion("backg1");
+        backgrounds[1] = mainAtlas.findRegion("backg2");
+        backgrounds[2] = mainAtlas.findRegion("backg3");
+        backgrounds[3] = mainAtlas.findRegion("backg4");
+
+        int backgroundHeight = WORLD_HEIGHT * 2;
         backgroundMaxScrollingSpeed = (float) (WORLD_HEIGHT) / 4;
+
+
+        //initialize texture regions
+        playerShipTextureRegion = mainAtlas.findRegion("1"); // From mainAtlas
+        enemyShipTextureRegion = enemyAtlas.findRegion("Enemyship");
+        playerShieldTextureRegion = mainAtlas.findRegion("shield1");
+        playerShieldTextureRegion.flip(false, true);
+        enemyShieldTextureRegion = mainAtlas.findRegion("shield1");
+        enemyShieldTextureRegion.flip(false, true);
+        playerLaserTextureRegion = mainAtlas.findRegion("laserBlue06"); // From mainAtlas
+        enemyLaserTextureregion = mainAtlas.findRegion("laserRed07"); // From enemyAtlas
+
+        if (playerShipTextureRegion == null || enemyShipTextureRegion== null) {
+            Gdx.app.log("TextureRegion Error", "playerShipTextureRegion not found in mainAtlas");
+        }
+
+        //set up game objects
+        playerShip = new Ship(2,3,20,20,
+        WORLD_WIDTH/2, WORLD_HEIGHT/4, playerShipTextureRegion,playerShieldTextureRegion);
+        enemyShip = new Ship(2,1,10,10,
+            WORLD_WIDTH/2, WORLD_HEIGHT*3/4, enemyShipTextureRegion,enemyShieldTextureRegion);
         batch = new SpriteBatch();
     }
 
     @Override
-    public void show() {// ikaw na bahala sabot ani yAWAAAAAAA KAAAAAA IBALIK NI SA DATI, cge:(
+    public void show() {
 
     }
 
@@ -57,6 +94,15 @@ public class GameScreen implements Screen {
 
         // Render scrolling background
         renderBackground(deltaTime);
+
+        //enemy ships
+        enemyShip.draw(batch);
+
+        //player ships
+        playerShip.draw(batch);
+        //lasers
+
+        //explosions
 
         batch.end();
     }
@@ -101,8 +147,14 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
-        for (Texture texture : backgrounds) {
-            texture.dispose();
+        for (TextureRegion region : backgrounds) {
+            if (region != null && region.getTexture() != null) {
+                region.getTexture().dispose();
+            }
         }
+
     }
-}
+
+    }
+
+
